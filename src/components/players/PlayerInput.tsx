@@ -1,5 +1,6 @@
 import { Clock3 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import { MAX_PLAYER_NAME_LENGTH } from '../../schemas/tournament'
 
 interface PlayerInputProps {
   value: string
@@ -103,7 +104,7 @@ export function PlayerInput({
         }}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        maxLength={16}
+        maxLength={MAX_PLAYER_NAME_LENGTH}
         className={`w-full min-h-[44px] rounded-lg bg-surface px-4 py-2.5 text-base transition-colors focus:outline-none sm:min-h-[46px] sm:py-3 md:min-h-[48px] ${
           hasError 
             ? 'border-2 border-red-500 focus:border-red-500' 

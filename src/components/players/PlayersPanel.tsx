@@ -1,9 +1,16 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Users, Plus } from 'lucide-react'
+import { Users, Plus, Download } from 'lucide-react'
+import { toast } from 'sonner'
 import { PlayerChip } from './PlayerChip'
 import { PlayerInput } from './PlayerInput'
 import { CollapsiblePanel } from '../ui'
+import { isKlubyImportAvailable } from '../../utils/kluby/availability'
+import { recordImport, type ImportedPlayers, type KlubyImportPlan } from '../../utils/kluby/playerNames'
+import { MAX_PLAYERS } from '../../schemas/tournament'
+
+// Loaded on first open so the club list isn't part of the Create page bundle.
+const KlubyImportModal = lazy(() => import('./KlubyImportModal').then((m) => ({ default: m.KlubyImportModal })))
 
 interface PlayersPanelProps {
   players: string[]
@@ -16,6 +23,8 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
   const [isExpanded, setIsExpanded] = useState(true)
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isAdding, setIsAdding] = useState(false)
+  const [isKlubyOpen, setIsKlubyOpen] = useState(false)
+  const [klubyImported, setKlubyImported] = useState<ImportedPlayers>(() => new Map())
 
   const handleRename = (index: number, newName: string) => {
     const updated = [...players]
@@ -40,6 +49,20 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
   const handleAddCancel = () => {
     setNewPlayerName('')
     setIsAdding(false)
+  }
+
+  const handleKlubyImport = (plan: KlubyImportPlan) => {
+    setIsKlubyOpen(false)
+    onPlayersChange([...players, ...plan.toAdd.map(({ name }) => name)])
+    setKlubyImported((prev) => recordImport(prev, plan))
+
+    const skipped = plan.alreadyListed.length
+    toast.success(t('create.players.kluby.added', { count: plan.toAdd.length }), {
+      description: skipped > 0 ? t('create.players.kluby.skippedListed', { count: skipped }) : undefined,
+    })
+    if (plan.overLimit.length > 0) {
+      toast.error(t('create.players.kluby.limitReached', { max: MAX_PLAYERS }))
+    }
   }
 
   const isDuplicate = players.some(
@@ -95,6 +118,7 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
             </button>
           </div>
         ) : (
+          <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setIsAdding(true)}
@@ -103,6 +127,28 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
             <Plus className="w-5 h-5" />
             {t('create.players.add')}
           </button>
+          {isKlubyImportAvailable && (
+            <button
+              type="button"
+              onClick={() => setIsKlubyOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 sm:py-2.5 md:py-3 text-base text-foreground-muted hover:text-padel-500 border border-dashed border-border hover:border-padel-500/50 rounded-lg transition-colors min-h-[44px] sm:min-h-[46px] md:min-h-[48px]"
+            >
+              <Download className="w-5 h-5" />
+              {t('create.players.kluby.importButton')}
+            </button>
+          )}
+          </div>
+        )}
+
+        {isKlubyOpen && (
+          <Suspense fallback={null}>
+            <KlubyImportModal
+              players={players}
+              imported={klubyImported}
+              onImport={handleKlubyImport}
+              onClose={() => setIsKlubyOpen(false)}
+            />
+          </Suspense>
         )}
 
         <p className="text-foreground-muted text-sm">

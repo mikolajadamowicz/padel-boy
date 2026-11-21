@@ -13,7 +13,8 @@
     "build": "npm run type-check && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks",
+    "kluby:clubs": "tsx src/utils/kluby/scripts/fetch-clubs.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
