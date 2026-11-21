@@ -1,13 +1,12 @@
 import { Trans } from 'react-i18next'
 
+import { GITHUB_ISSUES_URL } from '../../config'
 import { InfoPanel } from '../ui'
 
 type TransWrapperProps = {
   i18nKey: string
   className?: string
 }
-
-const githubIssuesHref = 'https://github.com/DarBrick/padel-boy/issues'
 
 export function TransWrapper({ i18nKey, className = 'content-section' }: TransWrapperProps) {
   return (
@@ -19,7 +18,7 @@ export function TransWrapper({ i18nKey, className = 'content-section' }: TransWr
           infoPanel: <InfoPanel />,
           githubIssuesLink: (
             <a
-              href={githubIssuesHref}
+              href={GITHUB_ISSUES_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-padel-500 hover:underline"
