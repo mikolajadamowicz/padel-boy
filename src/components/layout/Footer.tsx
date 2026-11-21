@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Github, Scale } from 'lucide-react'
+import { Scale } from 'lucide-react'
 import { APP_VERSION, GITHUB_REPO_URL } from '../../config'
+import { GithubIcon } from './GithubIcon'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Footer() {
@@ -41,7 +42,7 @@ export function Footer() {
           rel="noopener noreferrer"
           className="flex items-center gap-1 hover:text-padel-500 transition-colors"
         >
-          <Github className="w-4 h-4" />
+          <GithubIcon className="w-4 h-4" />
           {t('footer.github')}
         </a>
         <span>•</span>

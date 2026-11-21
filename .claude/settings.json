@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "miko-skills": {
+      "source": {
+        "source": "github",
+        "repo": "mikolajadamowicz/miko-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "miko-skills@miko-skills": true
+  }
+}

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -42,7 +42,7 @@ interface ChartContainerProps {
   
   // Tooltip configuration
   tooltipActive?: boolean
-  tooltipFormatter?: (value: any, name?: string) => [string, string]
+  tooltipFormatter?: ComponentProps<typeof Tooltip>['formatter']
   
   // Legend
   showLegend?: boolean
