@@ -1,5 +1,5 @@
 name = "padel-boy-kluby-proxy"
-main = "kluby-proxy.js"
+main = "kluby-proxy.ts"
 compatibility_date = "2025-01-01"
 
 [vars]

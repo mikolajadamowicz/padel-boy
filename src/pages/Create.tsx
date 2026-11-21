@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { LayoutGrid, PencilLine, Shuffle, Dices, Trophy, Handshake, Grid2X2Plus, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { createTournamentSchema, type CreateTournamentForm, type StoredTournament } from '../schemas/tournament'
+import { createTournamentSchema, MAX_PLAYER_NAME_LENGTH, type CreateTournamentForm, type StoredTournament } from '../schemas/tournament'
 import { generateTournamentName } from '../utils/tournament'
 import { generateTournamentId } from '../utils/tournamentId'
 import { useTournaments } from '../stores/tournaments'
@@ -151,7 +151,7 @@ export function Create() {
       numberOfCourts: data.numberOfCourts,
       isFixedPairs: false, // Not yet supported
       playerCount: players.length,
-      players: players.map(name => ({ name: name.slice(0, 16) })), // Max 16 chars per player
+      players: players.map(name => ({ name: name.slice(0, MAX_PLAYER_NAME_LENGTH) })),
       matches: [], // Matches will be generated when tournament starts
       courtNames: Object.keys(courtNamesRecord).length > 0 ? courtNamesRecord : undefined,
       // Mexicano-specific options

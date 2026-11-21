@@ -5,7 +5,6 @@ interface ImportMetaEnv {
   DEV: boolean
   PROD: boolean
   MODE: string
-  readonly VITE_KLUBY_PROXY_URL?: string
 }
 
 interface ImportMeta {
@@ -13,3 +12,5 @@ interface ImportMeta {
 }
 
 declare const __APP_VERSION__: string
+/** Base URL for kluby.org requests; empty when the import is disabled. Set in vite.config.ts. */
+declare const __KLUBY_PROXY_URL__: string

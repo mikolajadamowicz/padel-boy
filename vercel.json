@@ -4,8 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/kluby-proxy/:club/grafik", "destination": "https://kluby.org/:club/grafik" },
-    { "source": "/kluby-proxy/:club/rezerwacje/:id/uczestnicy", "destination": "https://kluby.org/:club/rezerwacje/:id/uczestnicy" },
-    { "source": "/((?!assets/|kluby-proxy/).*)", "destination": "/index.html" }
+    { "source": "/kluby-proxy/:path*", "destination": "/api/kluby-proxy?path=:path*" },
+    { "source": "/((?!assets/|api/|kluby-proxy/).*)", "destination": "/index.html" }
   ]
 }

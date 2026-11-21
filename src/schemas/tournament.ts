@@ -1,9 +1,12 @@
 import { z } from 'zod'
 
+export const MAX_PLAYERS = 40
+export const MAX_PLAYER_NAME_LENGTH = 16
+
 export const createTournamentSchema = z.object({
   eventType: z.enum(['americano', 'mexicano']),
   tournamentName: z.string().max(50).optional(),
-  numberOfPlayers: z.number().min(4).max(40),
+  numberOfPlayers: z.number().min(4).max(MAX_PLAYERS),
   numberOfCourts: z.number().min(1).max(10),
   pointsPerMatch: z.enum(['16', '21', '24', '32']),
   courtNames: z.array(z.string()).optional(),
@@ -17,7 +20,7 @@ export type CreateTournamentForm = z.infer<typeof createTournamentSchema>
 // Binary format schemas (v1)
 
 export const storedPlayerSchema = z.object({
-  name: z.string().min(1).max(16),
+  name: z.string().min(1).max(MAX_PLAYER_NAME_LENGTH),
 })
 
 export const storedMatchSchema = z.object({
@@ -35,7 +38,7 @@ export const storedTournamentSchema = z.object({
   pointsPerGame: z.union([z.literal(16), z.literal(21), z.literal(24), z.literal(32)]),
   numberOfCourts: z.number().min(1).max(10),
   isFixedPairs: z.boolean(),
-  playerCount: z.number().min(4).max(40),
+  playerCount: z.number().min(4).max(MAX_PLAYERS),
   
   // Mexicano-specific
   mexicanoMatchupStyle: z.enum(['1&4vs2&3', '1&3vs2&4']).optional(),
@@ -47,7 +50,7 @@ export const storedTournamentSchema = z.object({
   courtNames: z.record(z.number().min(0).max(9), z.string().min(1).max(16)).optional(),
   
   // Data arrays
-  players: z.array(storedPlayerSchema).min(4).max(40),
+  players: z.array(storedPlayerSchema).min(4).max(MAX_PLAYERS),
   matches: z.array(storedMatchSchema),
   
   // Optional finish timestamp

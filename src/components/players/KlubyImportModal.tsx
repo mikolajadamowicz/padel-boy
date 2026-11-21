@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft,
@@ -19,11 +20,16 @@ import {
   searchClubs,
   type KlubyClub,
   type KlubyEvent,
-  type KlubyParticipant,
 } from '../../utils/kluby/client'
+import { planKlubyImport, type ImportedPlayers, type KlubyImportPlan } from '../../utils/kluby/playerNames'
+import { MAX_PLAYERS } from '../../schemas/tournament'
 
 interface KlubyImportModalProps {
-  onImport: (rawNames: string[]) => void
+  /** Current player list, so the modal can preview names and spot people already added. */
+  players: string[]
+  /** kluby.org profiles added by earlier imports. */
+  imported: ImportedPlayers
+  onImport: (plan: KlubyImportPlan) => void
   onClose: () => void
 }
 
@@ -32,25 +38,28 @@ type LoadState<T> =
   | { status: 'error' }
   | { status: 'ready'; data: T }
 
-const MAX_VISIBLE_CLUBS = 50
-
 function toIsoDate(date: Date): string {
   const offset = date.getTimezoneOffset() * 60_000
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)
 }
 
-function shiftDate(isoDate: string, days: number): string {
+function parseIsoDate(isoDate: string): Date {
   const [year, month, day] = isoDate.split('-').map(Number)
-  return toIsoDate(new Date(year, month - 1, day + days))
+  return new Date(year, month - 1, day)
+}
+
+function shiftDate(isoDate: string, days: number): string {
+  const date = parseIsoDate(isoDate)
+  date.setDate(date.getDate() + days)
+  return toIsoDate(date)
 }
 
 /** Runs `load` whenever `key` changes and exposes loading/error/ready state. */
-function useLoader<T>(key: string | null, load: (signal: AbortSignal) => Promise<T>) {
+function useLoader<T>(key: string, load: (signal: AbortSignal) => Promise<T>) {
   const [state, setState] = useState<LoadState<T>>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
-    if (key === null) return
     const controller = new AbortController()
     setState({ status: 'loading' })
     load(controller.signal)
@@ -62,83 +71,115 @@ function useLoader<T>(key: string | null, load: (signal: AbortSignal) => Promise
         }
       })
     return () => controller.abort()
-    // `load` is recreated every render; `key` captures its inputs.
+    // `key` lists every input `load` closes over; `load` itself is a new function each render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, attempt])
 
   return { state, retry: () => setAttempt((n) => n + 1) }
 }
 
+const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+
+/** Keeps Tab inside the dialog and returns focus to the opener on close. */
+function useFocusTrap(dialogRef: RefObject<HTMLDivElement | null>) {
+  // Read during the first render: by the time effects run, autoFocus has moved focus into the dialog.
+  const [opener] = useState(() => document.activeElement as HTMLElement | null)
+  useEffect(() => () => opener?.focus(), [opener])
+
+  return (e: KeyboardEvent) => {
+    if (e.key !== 'Tab' || !dialogRef.current) return
+    const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)]
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
+
 const rowClass =
   'flex min-h-[44px] w-full items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-padel-500/50 hover:bg-surface-muted sm:min-h-[46px] md:min-h-[48px]'
 
-export function KlubyImportModal({ onImport, onClose }: KlubyImportModalProps) {
-  const { t } = useTranslation()
+const iconButtonClass =
+  'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface hover:text-foreground'
+
+export function KlubyImportModal({ players, imported, onImport, onClose }: KlubyImportModalProps) {
+  const { t, i18n } = useTranslation()
+  const [query, setQuery] = useState('')
   const [club, setClub] = useState<KlubyClub | null>(null)
   const [event, setEvent] = useState<KlubyEvent | null>(null)
   const [date, setDate] = useState(() => toIsoDate(new Date()))
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const trapTab = useFocusTrap(dialogRef)
 
+  // Each step replaces the content, so move focus to the title of the new step.
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
+    if (club) titleRef.current?.focus()
+  }, [club, event])
 
   const goBack = () => {
     if (event) setEvent(null)
     else setClub(null)
   }
 
-  return (
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      if (club) goBack()
+      else onClose()
+    }
+    trapTab(e)
+  }
+
+  const formattedDate = new Intl.DateTimeFormat(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })
+    .format(parseIsoDate(date))
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
 
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="kluby-import-title"
+        onKeyDown={handleKeyDown}
         className="relative flex max-h-[90dvh] w-full max-w-lg flex-col rounded-t-xl border border-border bg-background-elevated shadow-2xl sm:rounded-xl"
       >
         <div className="flex items-center gap-2 border-b border-border p-4 sm:p-5">
           {club && (
-            <button
-              type="button"
-              onClick={goBack}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
-              aria-label={t('create.players.kluby.back')}
-            >
+            <button type="button" onClick={goBack} className={iconButtonClass} aria-label={t('create.players.kluby.back')}>
               <ArrowLeft className="h-5 w-5" />
             </button>
           )}
           <div className="min-w-0 flex-1">
-            <h3 id="kluby-import-title" className="truncate text-lg font-bold text-foreground">
+            <h3 id="kluby-import-title" ref={titleRef} tabIndex={-1} className="truncate text-lg font-bold text-foreground focus:outline-none">
               {event?.title || club?.name || t('create.players.kluby.title')}
             </h3>
             {club && (
               <p className="truncate text-sm text-foreground-muted">
-                {event ? `${club.name} · ${date} · ${event.start}–${event.end}` : club.address}
+                {event ? `${club.name} · ${formattedDate} · ${event.start}–${event.end}` : club.address}
               </p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
-            aria-label={t('common.close')}
-          >
+          <button type="button" onClick={onClose} className={iconButtonClass} aria-label={t('common.close')}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5">
           {!club ? (
-            <ClubStep onPick={setClub} />
+            <ClubStep query={query} onQueryChange={setQuery} onPick={setClub} />
           ) : !event ? (
             <EventStep club={club} date={date} onDateChange={setDate} onPick={setEvent} />
           ) : (
-            <ParticipantsStep club={club} event={event} onImport={onImport} />
+            <ParticipantsStep club={club} event={event} players={players} imported={imported} onImport={onImport} />
           )}
         </div>
 
@@ -146,13 +187,21 @@ export function KlubyImportModal({ onImport, onClose }: KlubyImportModalProps) {
           {t('create.players.kluby.source')}
         </p>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
-function ClubStep({ onPick }: { onPick: (club: KlubyClub) => void }) {
+function ClubStep({
+  query,
+  onQueryChange,
+  onPick,
+}: {
+  query: string
+  onQueryChange: (query: string) => void
+  onPick: (club: KlubyClub) => void
+}) {
   const { t } = useTranslation()
-  const [query, setQuery] = useState('')
   const results = useMemo(() => searchClubs(query), [query])
 
   return (
@@ -162,8 +211,9 @@ function ClubStep({ onPick }: { onPick: (club: KlubyClub) => void }) {
         <input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => onQueryChange(e.target.value)}
           placeholder={t('create.players.kluby.searchClubPlaceholder')}
+          aria-label={t('create.players.kluby.searchClubPlaceholder')}
           autoFocus
           className="min-h-[44px] w-full rounded-lg border border-border bg-surface py-2.5 pl-10 pr-4 text-base focus:border-padel-500 focus:outline-none sm:min-h-[46px] md:min-h-[48px]"
         />
@@ -174,7 +224,7 @@ function ClubStep({ onPick }: { onPick: (club: KlubyClub) => void }) {
         <p className="py-6 text-center text-foreground-muted">{t('create.players.kluby.noClubs')}</p>
       ) : (
         <ul className="space-y-2">
-          {results.slice(0, MAX_VISIBLE_CLUBS).map((club) => (
+          {results.map((club) => (
             <li key={club.slug}>
               <button type="button" onClick={() => onPick(club)} className={rowClass}>
                 <MapPin className="h-5 w-5 flex-shrink-0 text-padel-500" />
@@ -197,7 +247,7 @@ function StatusMessage({ state, retry, empty }: { state: LoadState<unknown>; ret
 
   if (state.status === 'loading') {
     return (
-      <div className="flex items-center justify-center gap-2 py-8 text-foreground-muted">
+      <div className="flex items-center justify-center gap-2 py-8 text-foreground-muted" role="status">
         <LoaderCircle className="h-5 w-5 animate-spin" />
         {t('create.players.kluby.loading')}
       </div>
@@ -205,7 +255,7 @@ function StatusMessage({ state, retry, empty }: { state: LoadState<unknown>; ret
   }
   if (state.status === 'error') {
     return (
-      <div className="space-y-3 py-6 text-center">
+      <div className="space-y-3 py-6 text-center" role="alert">
         <p className="text-red-400">{t('create.players.kluby.loadError')}</p>
         <button
           type="button"
@@ -288,17 +338,35 @@ function EventStep({
 function ParticipantsStep({
   club,
   event,
+  players,
+  imported,
   onImport,
 }: {
   club: KlubyClub
   event: KlubyEvent
-  onImport: (rawNames: string[]) => void
+  players: string[]
+  imported: ImportedPlayers
+  onImport: (plan: KlubyImportPlan) => void
 }) {
   const { t } = useTranslation()
   const { state, retry } = useLoader(`${club.slug}|${event.id}`, (signal) => fetchEventParticipants(club.slug, event.id, signal))
-  const participants: KlubyParticipant[] = state.status === 'ready' ? state.data.participants : []
   const [deselected, setDeselected] = useState<Set<string>>(new Set())
-  const selected = participants.filter((p) => !deselected.has(p.id))
+
+  const participants = useMemo(() => (state.status === 'ready' ? state.data.participants : []), [state])
+  const listedIds = useMemo(
+    () => new Set(planKlubyImport(participants, players, imported).alreadyListed.map((p) => p.id)),
+    [participants, players, imported],
+  )
+  const selectable = participants.filter((p) => !listedIds.has(p.id))
+  const selected = selectable.filter((p) => !deselected.has(p.id))
+  const plan = planKlubyImport(selected, players, imported)
+  const nameFor = new Map(plan.toAdd.map(({ participant, name }) => [participant.id, name]))
+
+  if (participants.length === 0) {
+    return <StatusMessage state={state} retry={retry} empty={t('create.players.kluby.noParticipants')} />
+  }
+
+  const allSelected = selected.length === selectable.length
 
   const toggle = (id: string) => {
     setDeselected((prev) => {
@@ -309,12 +377,6 @@ function ParticipantsStep({
     })
   }
 
-  if (participants.length === 0) {
-    return <StatusMessage state={state} retry={retry} empty={t('create.players.kluby.noParticipants')} />
-  }
-
-  const allSelected = selected.length === participants.length
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -323,49 +385,67 @@ function ParticipantsStep({
             ? `${participants.length}/${state.data.capacity}`
             : participants.length}
         </span>
-        <button
-          type="button"
-          onClick={() => setDeselected(allSelected ? new Set(participants.map((p) => p.id)) : new Set())}
-          className="min-h-[44px] px-2 text-sm font-medium text-padel-500 hover:text-padel-400"
-        >
-          {allSelected ? t('create.players.kluby.selectNone') : t('create.players.kluby.selectAll')}
-        </button>
+        {selectable.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setDeselected(allSelected ? new Set(selectable.map((p) => p.id)) : new Set())}
+            className="min-h-[44px] px-2 text-sm font-medium text-padel-500 hover:text-padel-400"
+          >
+            {allSelected ? t('create.players.kluby.selectNone') : t('create.players.kluby.selectAll')}
+          </button>
+        )}
       </div>
 
       <ul className="space-y-2">
         {participants.map((participant) => {
-          const isSelected = !deselected.has(participant.id)
+          const isListed = listedIds.has(participant.id)
+          const isSelected = !isListed && !deselected.has(participant.id)
+          const addedAs = nameFor.get(participant.id)
           return (
             <li key={participant.id}>
               <button
                 type="button"
                 role="checkbox"
                 aria-checked={isSelected}
+                disabled={isListed}
                 onClick={() => toggle(participant.id)}
-                className={`${rowClass} ${isSelected ? 'border-padel-500/60' : 'opacity-60'}`}
+                className={`${rowClass} disabled:cursor-not-allowed ${isSelected ? 'border-padel-500/60' : 'opacity-60'}`}
               >
                 <span
                   className={`inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border ${
-                    isSelected ? 'border-padel-500 bg-padel-500 text-background' : 'border-border'
+                    isSelected ? 'border-padel-500 bg-padel-500 text-background' : 'border-foreground-muted'
                   }`}
                 >
                   {isSelected && <Check className="h-4 w-4" />}
                 </span>
-                <span className="truncate text-foreground">{participant.name}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-foreground">{participant.name}</span>
+                  {isListed ? (
+                    <span className="block truncate text-sm text-foreground-muted">{t('create.players.kluby.alreadyListed')}</span>
+                  ) : addedAs && addedAs !== participant.name ? (
+                    <span className="block truncate text-sm text-foreground-muted">{t('create.players.kluby.addedAs', { name: addedAs })}</span>
+                  ) : null}
+                </span>
               </button>
             </li>
           )
         })}
       </ul>
 
+      {plan.overLimit.length > 0 && (
+        <p className="text-sm text-red-400" role="alert">
+          {t('create.players.kluby.limitReached', { max: MAX_PLAYERS })}
+        </p>
+      )}
+
       <button
         type="button"
-        disabled={selected.length === 0}
-        onClick={() => onImport(selected.map((p) => p.name))}
+        disabled={plan.toAdd.length === 0}
+        onClick={() => onImport(plan)}
         className="sticky bottom-0 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-padel-500 px-4 py-3 font-medium text-background transition-colors hover:bg-padel-400 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-[46px] md:min-h-[48px]"
       >
         <Users className="h-5 w-5" />
-        {t('create.players.kluby.addSelected', { count: selected.length })}
+        {t('create.players.kluby.addSelected', { count: plan.toAdd.length })}
       </button>
     </div>
   )

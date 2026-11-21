@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Users, Plus, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { PlayerChip } from './PlayerChip'
 import { PlayerInput } from './PlayerInput'
-import { KlubyImportModal } from './KlubyImportModal'
 import { CollapsiblePanel } from '../ui'
-import { isKlubyImportAvailable } from '../../utils/kluby/client'
-import { toAppPlayerNames } from '../../utils/kluby/playerNames'
+import { isKlubyImportAvailable } from '../../utils/kluby/availability'
+import { recordImport, type ImportedPlayers, type KlubyImportPlan } from '../../utils/kluby/playerNames'
+import { MAX_PLAYERS } from '../../schemas/tournament'
 
-const MAX_PLAYERS = 40
+// Loaded on first open so the club list isn't part of the Create page bundle.
+const KlubyImportModal = lazy(() => import('./KlubyImportModal').then((m) => ({ default: m.KlubyImportModal })))
 
 interface PlayersPanelProps {
   players: string[]
@@ -23,6 +24,7 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [isKlubyOpen, setIsKlubyOpen] = useState(false)
+  const [klubyImported, setKlubyImported] = useState<ImportedPlayers>(() => new Map())
 
   const handleRename = (index: number, newName: string) => {
     const updated = [...players]
@@ -49,23 +51,16 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
     setIsAdding(false)
   }
 
-  const handleKlubyImport = (rawNames: string[]) => {
-    // Skip people already on the list (e.g. the same event imported twice),
-    // then name the rest so they don't clash with existing players.
-    const existing = new Set(players.map((p) => p.toLowerCase()))
-    const preferred = toAppPlayerNames(rawNames)
-    const newRawNames = rawNames.filter((_, i) => !existing.has(preferred[i].toLowerCase()))
-    const fresh = toAppPlayerNames(newRawNames, players)
-    const toAdd = fresh.slice(0, Math.max(MAX_PLAYERS - players.length, 0))
-
+  const handleKlubyImport = (plan: KlubyImportPlan) => {
     setIsKlubyOpen(false)
-    if (toAdd.length > 0) {
-      onPlayersChange([...players, ...toAdd])
-      toast.success(t('create.players.kluby.added', { count: toAdd.length }))
-    } else if (fresh.length === 0) {
-      toast(t('create.players.kluby.nothingAdded'))
-    }
-    if (toAdd.length < fresh.length) {
+    onPlayersChange([...players, ...plan.toAdd.map(({ name }) => name)])
+    setKlubyImported((prev) => recordImport(prev, plan))
+
+    const skipped = plan.alreadyListed.length
+    toast.success(t('create.players.kluby.added', { count: plan.toAdd.length }), {
+      description: skipped > 0 ? t('create.players.kluby.skippedListed', { count: skipped }) : undefined,
+    })
+    if (plan.overLimit.length > 0) {
       toast.error(t('create.players.kluby.limitReached', { max: MAX_PLAYERS }))
     }
   }
@@ -146,7 +141,14 @@ export function PlayersPanel({ players, onPlayersChange, suggestions = [] }: Pla
         )}
 
         {isKlubyOpen && (
-          <KlubyImportModal onImport={handleKlubyImport} onClose={() => setIsKlubyOpen(false)} />
+          <Suspense fallback={null}>
+            <KlubyImportModal
+              players={players}
+              imported={klubyImported}
+              onImport={handleKlubyImport}
+              onClose={() => setIsKlubyOpen(false)}
+            />
+          </Suspense>
         )}
 
         <p className="text-foreground-muted text-sm">
