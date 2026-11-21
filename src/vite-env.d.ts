@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   DEV: boolean
   PROD: boolean
   MODE: string
+  readonly VITE_KLUBY_PROXY_URL?: string
 }
 
 interface ImportMeta {

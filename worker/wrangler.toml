@@ -1,0 +1,7 @@
+name = "padel-boy-kluby-proxy"
+main = "kluby-proxy.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Comma-separated list of origins allowed to call the proxy.
+ALLOWED_ORIGINS = "https://padelboy.darikcube.com,http://localhost:5173,http://localhost:4173"

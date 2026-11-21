@@ -1,0 +1,382 @@
+{
+  "clubs": [
+    {
+      "slug": "amber-park",
+      "name": "Amber Park Spa",
+      "city": "Niechorze",
+      "address": "Niechorze, ul. Zaciszna 8"
+    },
+    {
+      "slug": "asaja-sport",
+      "name": "ASAJA SPORT",
+      "city": "Płock",
+      "address": "Płock, Płocka 3 B"
+    },
+    {
+      "slug": "baltic-padel-club",
+      "name": "Baltic Padel Club",
+      "city": "Gdynia",
+      "address": "Gdynia, Hutnicza 5"
+    },
+    {
+      "slug": "baza-padel-club",
+      "name": "Baza Padel Club",
+      "city": "Grudziądz",
+      "address": "Grudziądz, ul. Droga Jeziorna 4"
+    },
+    {
+      "slug": "baza-sport-suchy-dwor",
+      "name": "BAZA SPORT SUCHY DWÓR",
+      "city": "Suchy Dwór",
+      "address": "Suchy Dwór, Szkolna 34"
+    },
+    {
+      "slug": "calisia-padel",
+      "name": "Calisia Padel",
+      "city": "Kalisz",
+      "address": "Kalisz, Częstochowska 212"
+    },
+    {
+      "slug": "carthagowola",
+      "name": "Carthagowola Klub Padel",
+      "city": "Turbia",
+      "address": "Turbia, Ul. Akacjowa 1"
+    },
+    {
+      "slug": "fast-tennis-gdanska",
+      "name": "Fast Tennis & Padel Club",
+      "city": "Bydgoszcz",
+      "address": "Bydgoszcz, ul. Gdańska 163"
+    },
+    {
+      "slug": "garden-club",
+      "name": "Garden Club",
+      "city": "Konstancin-Jeziorna",
+      "address": "Konstancin-Jeziorna, Borowa 26"
+    },
+    {
+      "slug": "garden-padel",
+      "name": "Garden Padel",
+      "city": "Kraków",
+      "address": "Kraków, Radzikowskiego 109"
+    },
+    {
+      "slug": "gdynia-padel-club",
+      "name": "GDYNIA PADEL CLUB",
+      "city": "Gdynia",
+      "address": "Gdynia, Ludwika Zamenhofa 17"
+    },
+    {
+      "slug": "happy-padel",
+      "name": "Happy Padel",
+      "city": "Warszawa",
+      "address": "Warszawa, Wesoła, Jana Kilińskiego 26"
+    },
+    {
+      "slug": "miedzeszyn",
+      "name": "Klub Miedzeszyn",
+      "city": "Warszawa",
+      "address": "Warszawa, Wawer, ul. Bielika 17"
+    },
+    {
+      "slug": "pisz-point",
+      "name": "Klub Tenisowy Pisz-Point",
+      "city": "Pisz",
+      "address": "Pisz, Długa"
+    },
+    {
+      "slug": "kortmax",
+      "name": "Kortmax",
+      "city": "Błonie",
+      "address": "Błonie, Łaźniewek 10"
+    },
+    {
+      "slug": "kortownia",
+      "name": "Kortownia",
+      "city": "Gdańsk",
+      "address": "Gdańsk, Rurarzy 1"
+    },
+    {
+      "slug": "nowosolna",
+      "name": "Korty Nowosolna",
+      "city": "Łódź",
+      "address": "Łódź, Janów 5"
+    },
+    {
+      "slug": "legia",
+      "name": "Legia Tenis",
+      "city": "Warszawa",
+      "address": "Warszawa, Śródmieście, ul. Myśliwiecka 4a"
+    },
+    {
+      "slug": "leo-racket-club-straszyn",
+      "name": "Leo Racket Club - Straszyn",
+      "city": "Straszyn",
+      "address": "Straszyn, Jowisza 2"
+    },
+    {
+      "slug": "leo-padel",
+      "name": "Leo Racket Club - Trąbki Wielkie",
+      "city": "Trąbki Wielkie",
+      "address": "Trąbki Wielkie, Sportowa 4"
+    },
+    {
+      "slug": "mana-padel",
+      "name": "Mana Padel",
+      "city": "Warszawa",
+      "address": "Warszawa, Wilanów, ul. Zawodzie 24"
+    },
+    {
+      "slug": "miga-padel",
+      "name": "Miga Padel",
+      "city": "Polanica-Zdrój",
+      "address": "Polanica-Zdrój, Zdrojowa 32/34 (wejście od ul. Ogrodowej)"
+    },
+    {
+      "slug": "moris-katowicka",
+      "name": "MORIS Chorzów Katowicka",
+      "city": "Chorzów",
+      "address": "Chorzów, Katowicka 6"
+    },
+    {
+      "slug": "mosir-radzionkow",
+      "name": "MOSiR Radzionków",
+      "city": "Radzionków",
+      "address": "Radzionków, ul. Księżgórska 90"
+    },
+    {
+      "slug": "mosir-slowian",
+      "name": "MOSiR Słowian",
+      "city": "Katowice",
+      "address": "Katowice, ul. 1 Maja 99"
+    },
+    {
+      "slug": "one-padel",
+      "name": "One Padel Center",
+      "city": "Bielsko Biała",
+      "address": "Bielsko Biała, ul. Hodowców 37"
+    },
+    {
+      "slug": "padbox-kartuska",
+      "name": "PADBOX KARTUSKA",
+      "city": "Gdańsk",
+      "address": "Gdańsk, Szczęśliwa 1"
+    },
+    {
+      "slug": "padbox",
+      "name": "PADBOX STADION",
+      "city": "Gdańsk",
+      "address": "Gdańsk, ul. Pokoleń Lechii Gdańsk 1"
+    },
+    {
+      "slug": "padel-factory",
+      "name": "Padel Factory",
+      "city": "Nowy Targ",
+      "address": "Nowy Targ, Osiedle Bohaterów Tobruku 38"
+    },
+    {
+      "slug": "padel-flow-world",
+      "name": "Padel Flow World",
+      "city": "Olsztyn",
+      "address": "Olsztyn, ul. Lubelska 36 C"
+    },
+    {
+      "slug": "padel-jaworzno",
+      "name": "Padel Jaworzno VIA Sport",
+      "city": "Jaworzno",
+      "address": "Jaworzno, Wojska Polskiego 1"
+    },
+    {
+      "slug": "padel-lodz",
+      "name": "Padel Łódź",
+      "city": "Łódź",
+      "address": "Łódź, ul. Pomorska 431a"
+    },
+    {
+      "slug": "padel-park",
+      "name": "Padel Park",
+      "city": "Pruszcz Gdański",
+      "address": "Pruszcz Gdański, Batalionów Chłopskich 10"
+    },
+    {
+      "slug": "padel-park-bydgoszcz",
+      "name": "Padel Park Bydgoszcz",
+      "city": "Bydgoszcz",
+      "address": "Bydgoszcz, ul. Gdańska 173-175"
+    },
+    {
+      "slug": "padel-point-lublin",
+      "name": "Padel Point Lublin",
+      "city": "Lublin",
+      "address": "Lublin, ul. Wrońska 2F"
+    },
+    {
+      "slug": "padel-point-zemborzycka",
+      "name": "Padel Point Zemborzycka",
+      "city": "Lublin",
+      "address": "Lublin, Zemborzycka 3"
+    },
+    {
+      "slug": "padel-score-elblag",
+      "name": "Padel Score Elbląg",
+      "city": "Elbląg",
+      "address": "Elbląg, aleja Grunwaldzka 141"
+    },
+    {
+      "slug": "padelup",
+      "name": "padel up",
+      "city": "Katowice",
+      "address": "Katowice, Żelazna 15a"
+    },
+    {
+      "slug": "bulwary-wislane",
+      "name": "Padel4All - Bulwary Wiślane",
+      "city": "Warszawa",
+      "address": "Warszawa, Śródmieście, Płyta Desantu 3 Dywizji Piechoty"
+    },
+    {
+      "slug": "padelmania",
+      "name": "Padelmania",
+      "city": "Dąbrowa Górnicza",
+      "address": "Dąbrowa Górnicza, ul. Kasprzaka 70"
+    },
+    {
+      "slug": "padlovnia",
+      "name": "Padlovnia",
+      "city": "Warszawa",
+      "address": "Warszawa, Ursynów, ul. Karnawał 8"
+    },
+    {
+      "slug": "payments-lights",
+      "name": "PAYMENTS & LIGHTS",
+      "city": "Lubsko",
+      "address": "Lubsko, ul. Lubska 99"
+    },
+    {
+      "slug": "pogoria-padel-club",
+      "name": "Pogoria Padel Club",
+      "city": "Dąbrowa Górnicza",
+      "address": "Dąbrowa Górnicza, Piłsudskiego 13"
+    },
+    {
+      "slug": "pomorska-tenis-park",
+      "name": "Pomorska Tenis Park",
+      "city": "Łódź",
+      "address": "Łódź, Pomorska 431a"
+    },
+    {
+      "slug": "pura-padel-pickleball",
+      "name": "PURA PADEL",
+      "city": "Bydgoszcz",
+      "address": "Bydgoszcz, Szajnochy 4"
+    },
+    {
+      "slug": "rakietmania",
+      "name": "Rakietmania",
+      "city": "Lublin",
+      "address": "Lublin, Rusałka 19"
+    },
+    {
+      "slug": "room-padel",
+      "name": "Room Padel",
+      "city": "Rumia",
+      "address": "Rumia, Kazimierska 39"
+    },
+    {
+      "slug": "servevolley-tennis-club",
+      "name": "Serve&Volley Tennis Club",
+      "city": "Konstantynów Łódzki",
+      "address": "Konstantynów Łódzki, Aleksandrowska 20"
+    },
+    {
+      "slug": "siesta-padel",
+      "name": "Siesta Padel",
+      "city": "Kielce",
+      "address": "Kielce, Wschodnia 12"
+    },
+    {
+      "slug": "silva-padel",
+      "name": "Silva Padel",
+      "city": "Warszawa",
+      "address": "Warszawa, Ursynów, ul. Puławska 531"
+    },
+    {
+      "slug": "spektrum-sportu",
+      "name": "Spektrum Sportu",
+      "city": "Legionowo",
+      "address": "Legionowo, Gabriela Narutowicza 96"
+    },
+    {
+      "slug": "sporteum",
+      "name": "Sporteum",
+      "city": "Warszawa",
+      "address": "Warszawa, Białołęka, ul. Zawiślańska 27"
+    },
+    {
+      "slug": "stacja-padel",
+      "name": "Stacja Padel",
+      "city": "Łódź",
+      "address": "Łódź, ul. Kolumny 27/29"
+    },
+    {
+      "slug": "tenes",
+      "name": "TENES Klub Sportowy",
+      "city": "Warszawa",
+      "address": "Warszawa, Ursus, ul. Piwna 13"
+    },
+    {
+      "slug": "tenis-kozerki",
+      "name": "Tenis Kozerki",
+      "city": "Kozerki",
+      "address": "Kozerki, ul. Jowisza 92, KOZERKI"
+    },
+    {
+      "slug": "rybienko-lesne",
+      "name": "Tenis w Rybienku Leśnym",
+      "city": "Wyszków",
+      "address": "Wyszków, Powstańców 20"
+    },
+    {
+      "slug": "teniswil",
+      "name": "TenisWil",
+      "city": "Warszawa",
+      "address": "Warszawa, Wilanów, ul. Przyczółkowa 210C"
+    },
+    {
+      "slug": "toro-padel",
+      "name": "Toro Padel",
+      "city": "Warszawa",
+      "address": "Warszawa, Bemowo, ul. Kazubów 14"
+    },
+    {
+      "slug": "ultra-padel-gliwice",
+      "name": "ULTRA PADEL Gliwice",
+      "city": "Gliwice",
+      "address": "Gliwice, ul. Bojkowska 35B"
+    },
+    {
+      "slug": "wejher-padel-club",
+      "name": "Wejher Padel Club",
+      "city": "Wejherowo",
+      "address": "Wejherowo, Łęgowskiego 11"
+    },
+    {
+      "slug": "mera",
+      "name": "WKT Mera",
+      "city": "Warszawa",
+      "address": "Warszawa, Ochota, al. Bohaterów Września 12"
+    },
+    {
+      "slug": "zatoka-padla",
+      "name": "Zatoka Padla",
+      "city": "Gdańsk",
+      "address": "Gdańsk, Bysewska 30"
+    },
+    {
+      "slug": "zop-chrzanow",
+      "name": "ZOP Chrzanów",
+      "city": "Chrzanów",
+      "address": "Chrzanów, Wyszyńskiego 19"
+    }
+  ]
+}

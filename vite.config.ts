@@ -40,6 +40,23 @@ export default defineConfig({
   ],
   // Always use root path - runtime detection in App.tsx handles basename routing
   base: '/',
+  server: {
+    proxy: {
+      // kluby.org has no CORS headers; in dev we proxy it (prod uses worker/kluby-proxy.ts)
+      '/kluby-proxy': {
+        target: 'https://kluby.org',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/kluby-proxy/, ''),
+        // Match the prod worker: identify as padel-boy, don't forward browser headers.
+        headers: { 'User-Agent': 'padel-boy (kluby.org participant import)' },
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            for (const header of ['cookie', 'origin', 'referer']) proxyReq.removeHeader(header)
+          })
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
