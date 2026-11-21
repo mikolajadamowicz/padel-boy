@@ -2,6 +2,11 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// On Vercel, vercel.json rewrites /kluby-proxy/* to kluby.org, so the import works out of the box.
+if (process.env.VERCEL && !process.env.VITE_KLUBY_PROXY_URL) {
+  process.env.VITE_KLUBY_PROXY_URL = '/kluby-proxy'
+}
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.0.0'),

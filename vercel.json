@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/kluby-proxy/:club/grafik", "destination": "https://kluby.org/:club/grafik" },
+    { "source": "/kluby-proxy/:club/rezerwacje/:id/uczestnicy", "destination": "https://kluby.org/:club/rezerwacje/:id/uczestnicy" },
+    { "source": "/((?!assets/|kluby-proxy/).*)", "destination": "/index.html" }
+  ]
+}
