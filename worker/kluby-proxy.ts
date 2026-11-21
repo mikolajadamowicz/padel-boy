@@ -1,7 +1,7 @@
 // Cloudflare Worker wrapper around the shared kluby.org proxy handler, for
 // static hosts (e.g. GitHub Pages) that can't run the proxy themselves.
 // Deploy: see worker/README.md
-import { handleKlubyProxy } from '../src/utils/kluby/proxyHandler'
+import { handleKlubyProxy } from '../src/utils/kluby/proxyHandler.js'
 
 interface Env {
   /** Comma-separated origins allowed to call this worker. */

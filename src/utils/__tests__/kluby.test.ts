@@ -237,6 +237,16 @@ describe('kluby proxy contract', () => {
     expect(toUpstreamUrl('/zatoka-padla/grafik', new URLSearchParams('evil=1&dyscyplina=4'))?.search).toBe('?dyscyplina=4')
   })
 
+  it('uses .js extensions in files Vercel runs unbundled as ESM', () => {
+    // Vercel compiles api/ and its imports file by file; Node can't resolve "./x" without ".js".
+    const unbundled = ['api/kluby-proxy.ts', 'src/utils/kluby/proxyHandler.ts', 'src/utils/kluby/proxyRoutes.ts']
+    for (const file of unbundled) {
+      const source = readFileSync(`${process.cwd()}/${file}`, 'utf8')
+      const relativeImports = [...source.matchAll(/from '(\.{1,2}\/[^']+)'/g)].map((m) => m[1])
+      expect(relativeImports.filter((path) => !path.endsWith('.js')), file).toEqual([])
+    }
+  })
+
   it('accepts every bundled club slug', () => {
     const rejected = clubsData.clubs.filter((club) => !toUpstreamUrl(`/${club.slug}/grafik`, new URLSearchParams()))
     expect(rejected).toEqual([])
@@ -244,7 +254,7 @@ describe('kluby proxy contract', () => {
 
   it('routes the client through the proxy prefix that vercel.json rewrites', async () => {
     const vercel = JSON.parse(readFileSync(`${process.cwd()}/vercel.json`, 'utf8')) as { rewrites: { source: string }[] }
-    expect(vercel.rewrites.map((r) => r.source)).toContain(`${PROXY_PREFIX}/:path*`)
+    expect(vercel.rewrites.map((r) => r.source)).toContain(`${PROXY_PREFIX}/:path(.*)`)
 
     const fetchMock = vi.fn(async (_input: RequestInfo | URL) => new Response(participantsHtml))
     vi.stubGlobal('fetch', fetchMock)

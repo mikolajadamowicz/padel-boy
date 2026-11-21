@@ -5,7 +5,7 @@
 //   - Vercel:     api/kluby-proxy.ts (vercel.json rewrites /kluby-proxy/* to it)
 //   - Cloudflare: worker/kluby-proxy.ts (for static hosts such as GitHub Pages)
 // Browser headers (cookies, user agent, referer) are never forwarded.
-import { KLUBY_USER_AGENT, toUpstreamUrl } from './proxyRoutes'
+import { KLUBY_USER_AGENT, toUpstreamUrl } from './proxyRoutes.js'
 
 export interface KlubyProxyOptions {
   /** Origins allowed to call the proxy cross-origin. Same-origin calls are always allowed. */
